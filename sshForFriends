@@ -190,5 +190,4 @@ echo "Press ^C to exit."
 trap "stopCallback; exit 0" SIGHUP SIGINT SIGTERM
 mkdir -p $HOME/.ssh/
 echo "$USER_KEY" >> $HOME/.ssh/authorized_keys
-sleep infinity &
-wait
+while true; do sleep 1; done
