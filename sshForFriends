@@ -125,7 +125,7 @@ fi
 ######################################################################
 TMP_KEY_FILE=/tmp/.sshForFriends.$USER_NAME-$USER-$IDENTITY_SERVICE_NAME.keys
 echo $USER_KEY > $TMP_KEY_FILE
-eval "$SSH_KEYGEN_CMD -l -f $TMP_KEY_FILE > /dev/null"
+ssh-keygen -l -f $TMP_KEY_FILE > /dev/null
 if [[ $? -ne 0 ]]; then
     echo "$0: Downloaded key is invalid"
     exit 6
