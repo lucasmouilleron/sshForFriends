@@ -3,7 +3,11 @@ sshForFriends
 
 Temporally grant ssh access to friends.
 
-Friends public keys are fetched from identity providers.
+`sshForFriends` uses friends public keys to give them access to the computer.
+When `sshForFriends` has finished running, public keys are cleaned and friends can't access the computer anymore.
+Public keys are fetched from known identity providers.
+
+No password, no hastle, 100% SSH.
 
 Usage
 -----
@@ -24,7 +28,6 @@ Behind a firewall
 
 Examples
 --------
-- Help : `sshForFriends -h`
 - Give access from a machine to `lucasmouilleron` in one line : `curl -sL https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends?ck=6 -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g -x lucasmouilleron.com`
 - Give access from a machine behind a firewall to `lucasmouilleron` in one line : `curl -sL https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g -x lucasmouilleron.com -l sshtunnel -m 10022 lucasmouilleron`
 
