@@ -1,7 +1,7 @@
 sshForFriends
 =============
 
-Temporally grant ssh access to friends.
+Temporally give ssh access to your friends.
 
 `sshForFriends` uses friends public keys to give them access to the computer.
 When `sshForFriends` has finished running, public keys are cleaned and friends can't access the computer anymore.
