@@ -33,6 +33,7 @@ printHelp () {
     echo "    -h : Print this help"
     echo "    -i : Identity provider ($IDENTITY_SERVICE)"
     echo "    -g : Github identity provider (equivalent to -i github)"
+    echo "    -k : Github identity provider (equivalent to -i keybase)"
     echo "    -x : SSH forward host"
     echo "    -l : SSH forward user ($XSSH_REMOTE_USER)"
     echo "    -m : SSH forward port ($XSSH_REMOTE_PORT)"
@@ -45,16 +46,27 @@ printHelp () {
 
 ######################################################################
 identityDownloadKeyGithub () {
-
     USER_KEY=$($CURL_CMD -s https://github.com/$USER_NAME.keys)
-
     if [[ -z $USER_KEY ]]; then
-        echo "User $USER_NAME has no keys on Github."
+        echo "User $USER_NAME has no keys on Github"
         exit 5
     fi
-
     if [[ "$USER_KEY" == "Not Found" ]]; then
-        echo "User $USER_NAME not found on Github."
+        echo "User $USER_NAME not found on Github"
+        exit 5
+    fi
+    echo $USER_KEY
+}
+
+######################################################################
+identityDownloadKeyKeybase () {
+    USER_KEY=$($CURL_CMD -s https://$USER_NAME.keybase.pub/id_rsa.pub)
+    if [[ -z $USER_KEY ]]; then
+        echo "User $USER_NAME has no key id_rsa.pub on Keybase"
+        exit 5
+    fi
+    if [[ "$USER_KEY" == "Not Found" ]]; then
+        echo "User $USER_NAME not found on Keybase"
         exit 5
     fi
     echo $USER_KEY
@@ -100,7 +112,7 @@ fi
 ######################################################################
 # PARSE ARGUMENTS
 ######################################################################
-while getopts "hgi:x:l:m:n:" o; do
+while getopts "hgki:x:l:m:n:" o; do
     case "${o}" in
         h)
             printHelp
@@ -108,6 +120,9 @@ while getopts "hgi:x:l:m:n:" o; do
             ;;
         g)
             IDENTITY_SERVICE="github"
+            ;;
+        k)
+            IDENTITY_SERVICE="keybase"
             ;;
         i)
             IDENTITY_SERVICE=$OPTARG
@@ -155,6 +170,8 @@ fi
 echo "Fetching $USER_NAME key from service $IDENTITY_SERVICE"
 if [ "$IDENTITY_SERVICE" == "github" ]; then
     USER_KEY=$(identityDownloadKeyGithub)
+elif [ "$IDENTITY_SERVICE" == "keybase" ]; then
+    USER_KEY=$(identityDownloadKeyKeybase)
 else
     echo "Error: Identity provider given is not supported"
     printHelp

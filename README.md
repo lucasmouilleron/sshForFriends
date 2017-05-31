@@ -17,8 +17,8 @@ Usage
 
 Identify providers
 ------------------
-- Github : `-g`, `-i github`
-- Keybase : `-k`, `-i keybase`
+- Github : keys from `https://github.com/$USER_NAME.keys` (`-g`, `-i github`)
+- Keybase : keys from `https://$USER_NAME.keybase.pub/id_rsa.pub` (`-k`, `-i keybase`)
 
 Behind a firewall
 -----------------
