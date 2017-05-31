@@ -99,6 +99,7 @@ while getopts "hgix:l:m:n:" o; do
             ;;
         g)
             IDENTITY_GITHUB=1
+            IDENTITY_SERVICE_NAME="github"
             ;;
         i)
             SHOW_IP_ADDRESS=1
@@ -134,8 +135,10 @@ if [ -z "$USER_NAME" ]; then
     exit 4
 fi
 
+######################################################################
+# ACQUIRE USER KEY
+######################################################################
 if [[ $IDENTITY_GITHUB -eq 1 ]]; then
-    IDENTITY_SERVICE_NAME="github"
     USER_KEY=$(identityDownloadKeyGithub)
 else
     echo "Error: No identity provider provided"
@@ -143,7 +146,6 @@ else
     exit 5
 fi
 
-######################################################################
 TMP_KEY_FILE=/tmp/.sshForFriends.$USER_NAME-$USER-$IDENTITY_SERVICE_NAME.keys
 echo $USER_KEY > $TMP_KEY_FILE
 eval "$SSH_KEYGEN_CMD -l -f $TMP_KEY_FILE > /dev/null"
@@ -152,8 +154,10 @@ if [[ $? -ne 0 ]]; then
     exit 6
 fi
 rm -f $TMP_KEY_FILE
+echo "Acquired key for user ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} from ${TEXT_BOLD}$IDENTITY_SERVICE_NAME${TEXT_NORMAL}"
 
-
+######################################################################
+# SETUP SSH FORWARING
 ######################################################################
 if [[ XSSH_ENABLED -eq 1 ]]; then
     LOCAL_IP_ADDRESS=$XSSH_REMOTE_HOST
@@ -171,15 +175,18 @@ else
 fi
 
 ######################################################################
-echo "Acquired key for user ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} from ${TEXT_BOLD}$IDENTITY_SERVICE_NAME${TEXT_NORMAL}."
+# PRINT
+######################################################################
 echo "Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login via ssh using : ${TEXT_BOLD}ssh $USER@$LOCAL_IP_ADDRESS${TEXT_NORMAL} -p $LOCAL_SSH_PORT"
 echo ""
 echo "Login authorization will stop after this program terminates."
 echo "Press ^C to exit."
 
 ######################################################################
+# CLEANUP
+######################################################################
 trap "stopCallback; exit 0" SIGHUP SIGINT SIGTERM
 mkdir -p $HOME/.ssh/
 echo "$USER_KEY" >> $HOME/.ssh/authorized_keys
-sleep infinity &
+# sleep infinity &
 wait
