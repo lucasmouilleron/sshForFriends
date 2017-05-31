@@ -44,9 +44,9 @@ stopCallback () {
     else
         rm $HOME/.ssh/authorized_keys && rm $HOME/.ssh/tmp;
     fi
-    # if [[ XSSH_ENABLED -eq 1 ]]; then
-        # ssh -S $TMP_SSH_FILE -O exit
-    # fi
+    if [[ XSSH_ENABLED -eq 1 ]]; then
+        pkill -f "ssh -f -R $XSSH_REMOTE_PORT:localhost:$XSSH_LOCAL_PORT $XSSH_REMOTE_USER@$XSSH_REMOTE_HOST" 2> /dev/null
+    fi
 }
 
 ######################################################################
@@ -69,6 +69,7 @@ XSSH_LOCAL_PORT=22
 XSSH_REMOTE_PORT=10022
 XSSH_REMOTE_USER="root"
 XSSH_REMOTE_HOST=""
+XSSH_OPEN_FOR=10
 TEXT_BOLD=$(tput bold)
 TEXT_NORMAL=$(tput sgr0)
 
@@ -157,7 +158,7 @@ rm -f $TMP_KEY_FILE
 if [[ XSSH_ENABLED -eq 1 ]]; then
     LOCAL_IP_ADDRESS=$XSSH_REMOTE_HOST
     LOCAL_SSH_PORT=$XSSH_REMOTE_PORT
-    ssh -f -R $XSSH_REMOTE_PORT:localhost:$XSSH_LOCAL_PORT $XSSH_REMOTE_USER@$XSSH_REMOTE_HOST sleep 10
+    ssh -f -R $XSSH_REMOTE_PORT:localhost:$XSSH_LOCAL_PORT $XSSH_REMOTE_USER@$XSSH_REMOTE_HOST
 else
     if [[ SHOW_IP_ADDRESS -eq 1 ]]; then
       LOCAL_IP_ADDRESS=$(getIP)
