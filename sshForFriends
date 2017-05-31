@@ -78,6 +78,11 @@ getIP() {
 }
 
 ######################################################################
+# CLEANUP
+######################################################################
+trap "stopCallback; exit 0" SIGHUP SIGINT SIGTERM
+
+######################################################################
 # TEST DEPS
 ######################################################################
 CURL_CMD=$(which curl 2> /dev/null)
@@ -193,9 +198,8 @@ echo ""
 echo "Login authorization will be revoked after this program terminated (press ^C to exit)"
 
 ######################################################################
-# CLEANUP
+# LAUNCH !!!
 ######################################################################
-trap "stopCallback; exit 0" SIGHUP SIGINT SIGTERM
 mkdir -p $HOME/.ssh/
 echo "$USER_KEY" >> $HOME/.ssh/authorized_keys
 while true; do sleep 1; done
