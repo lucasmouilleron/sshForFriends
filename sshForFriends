@@ -174,7 +174,7 @@ else
     fi    
 fi
 
-echo "ok"
+echo "ok2"
 
 ######################################################################
 # PRINT
@@ -190,5 +190,5 @@ echo "Press ^C to exit."
 trap "stopCallback; exit 0" SIGHUP SIGINT SIGTERM
 mkdir -p $HOME/.ssh/
 echo "$USER_KEY" >> $HOME/.ssh/authorized_keys
-# sleep infinity &
+sleep infinity &
 wait
