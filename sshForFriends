@@ -1,5 +1,24 @@
 #!/bin/bash
 
+
+######################################################################
+# VARS
+######################################################################
+IDENTITY_SERVICE="github"
+USER_NAME=""
+USER_KEY=""
+SHOW_IP_ADDRESS=1
+LOCAL_IP_ADDRESS="THIS_MACHINE_IP"
+LOCAL_SSH_PORT=22
+XSSH_ENABLED=0
+XSSH_LOCAL_PORT=22
+XSSH_REMOTE_PORT=10022
+XSSH_REMOTE_USER="root"
+XSSH_REMOTE_HOST=""
+XSSH_OPEN_FOR=10
+TEXT_BOLD=$(tput bold)
+TEXT_NORMAL=$(tput sgr0)
+
 ######################################################################
 # FUNCTIONS
 ######################################################################
@@ -12,8 +31,12 @@ printHelp () {
     echo ""
     echo "[options]"
     echo "    -h : Print this help"
-    echo "    -g : Github identity provider"
-    echo "    -i : Show IP address"
+    echo "    -i : Identity provider ($IDENTITY_SERVICE)"
+    echo "    -g : Github identity provider (equivalent to -i github)"
+    echo "    -x : SSH forward host"
+    echo "    -l : SSH forward user ($XSSH_REMOTE_USER)"
+    echo "    -m : SSH forward port ($XSSH_REMOTE_PORT)"
+    echo "    -n : SSH forward local port ($XSSH_LOCAL_PORT)"
     echo ""
     echo "<friendUsername>"
     echo "    The friend username which will be granted access"
@@ -55,25 +78,6 @@ getIP() {
 }
 
 ######################################################################
-# VARS
-######################################################################
-IDENTITY_GITHUB=0
-IDENTITY_SERVICE_NAME=""
-USER_NAME=""
-USER_KEY=""
-SHOW_IP_ADDRESS=0
-LOCAL_IP_ADDRESS="THIS_MACHINE_IP"
-LOCAL_SSH_PORT=22
-XSSH_ENABLED=0
-XSSH_LOCAL_PORT=22
-XSSH_REMOTE_PORT=10022
-XSSH_REMOTE_USER="root"
-XSSH_REMOTE_HOST=""
-XSSH_OPEN_FOR=10
-TEXT_BOLD=$(tput bold)
-TEXT_NORMAL=$(tput sgr0)
-
-######################################################################
 # TEST DEPS
 ######################################################################
 CURL_CMD=$(which curl 2> /dev/null)
@@ -91,18 +95,17 @@ fi
 ######################################################################
 # PARSE ARGUMENTS
 ######################################################################
-while getopts "hgix:l:m:n:" o; do
+while getopts "hgi:x:l:m:n:" o; do
     case "${o}" in
         h)
             printHelp
             exit 0
             ;;
         g)
-            IDENTITY_GITHUB=1
-            IDENTITY_SERVICE_NAME="github"
+            IDENTITY_SERVICE="github"
             ;;
         i)
-            SHOW_IP_ADDRESS=1
+            IDENTITY_SERVICE=$OPTARG
             ;;
         x)
             XSSH_ENABLED=1
@@ -130,23 +133,30 @@ USER_NAME=$1
 # TEST ARGUMENTS
 ######################################################################
 if [ -z "$USER_NAME" ]; then
-    echo "Error: No friend USER_NAME provided"
+    echo "Error: No friend username given"
     printHelp
     exit 4
+fi
+
+if [ -z "$IDENTITY_SERVICE" ]; then
+    echo "Error: No identity provider given"
+    printHelp
+    exit 5
 fi
 
 ######################################################################
 # ACQUIRE USER KEY
 ######################################################################
-if [[ $IDENTITY_GITHUB -eq 1 ]]; then
+echo "Fetching $USER_NAME key from service $IDENTITY_SERVICE"
+if [[ $IDENTITY_SERVICE -eq "github" ]]; then
     USER_KEY=$(identityDownloadKeyGithub)
 else
-    echo "Error: No identity provider provided"
+    echo "Error: Identity provider given is not supported"
     printHelp
     exit 5
 fi
 
-TMP_KEY_FILE=/tmp/.sshForFriends.$USER_NAME-$USER-$IDENTITY_SERVICE_NAME.keys
+TMP_KEY_FILE=/tmp/.sshForFriends.$USER_NAME-$USER-$IDENTITY_SERVICE.keys
 echo $USER_KEY > $TMP_KEY_FILE
 eval "$SSH_KEYGEN_CMD -l -f $TMP_KEY_FILE > /dev/null"
 if [[ $? -ne 0 ]]; then
@@ -154,7 +164,7 @@ if [[ $? -ne 0 ]]; then
     exit 6
 fi
 rm -f $TMP_KEY_FILE
-echo "Acquired key for user ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} from ${TEXT_BOLD}$IDENTITY_SERVICE_NAME${TEXT_NORMAL}"
+echo "Key for $USER_NAME from $IDENTITY_SERVICE acquired"
 
 ######################################################################
 # SETUP SSH FORWARING
@@ -177,10 +187,10 @@ fi
 ######################################################################
 # PRINT
 ######################################################################
-echo "Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login via ssh using : ${TEXT_BOLD}ssh $USER@$LOCAL_IP_ADDRESS${TEXT_NORMAL} -p $LOCAL_SSH_PORT"
 echo ""
-echo "Login authorization will stop after this program terminates."
-echo "Press ^C to exit."
+echo "==> Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login with : ${TEXT_BOLD}ssh $USER@$LOCAL_IP_ADDRESS${TEXT_NORMAL} -p $LOCAL_SSH_PORT"
+echo ""
+echo "Login authorization will be revoked after this program terminated (press ^C to exit)"
 
 ######################################################################
 # CLEANUP
