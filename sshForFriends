@@ -165,6 +165,8 @@ else
     fi    
 fi
 
+echo "ok"
+
 ######################################################################
 echo "Acquired key for user ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} from ${TEXT_BOLD}$IDENTITY_SERVICE_NAME${TEXT_NORMAL}."
 echo "Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login via ssh using : ${TEXT_BOLD}ssh $USER@$LOCAL_IP_ADDRESS${TEXT_NORMAL} -p $LOCAL_SSH_PORT"
