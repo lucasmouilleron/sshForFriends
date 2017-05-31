@@ -1,7 +1,0 @@
-
-curl -L https://github.com/flplv/ssh-allow-friend/raw/master/ssh-allow-friend -o $HOME/ssh-allow-friend ; chmod a+x $HOME/ssh-allow-friend ; $HOME/ssh-allow-friend --github lucasmouilleron
-
-get fixed version and put on githug perso project
-
-
-curl -s checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//'

@@ -13,7 +13,8 @@ print_help () {
     echo ""
     echo "[options]"
     echo "    -h : Print this help;"
-    echo "    -g : Select Github as public key server."
+    echo "    -g : Select Github as public key server"
+    echo "    -i : Show IP address"
     echo ""
     echo "<friend_user_name>"
     echo "    It is the username used to download keys from selected"
@@ -63,12 +64,18 @@ teardown () {
 }
 
 ######################################################################
+getIP() {
+    echo $(curl -s checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//')
+}
+
+######################################################################
 # VARS
 ######################################################################
 GITHUB=0
 USERNAME=""
 USERKEY=""
 SERVICENAME=""
+SHOWIPADDRESS=0
 LOCALIPADDRESS=""
 
 ######################################################################
@@ -89,7 +96,7 @@ fi
 ######################################################################
 # MAIN
 ######################################################################
-while getopts "hg:" o; do
+while getopts "hg:i" o; do
     case "${o}" in
         h)
             print_help
@@ -98,6 +105,9 @@ while getopts "hg:" o; do
         g)
             GITHUB=1
             USERNAME=${OPTARG}
+            ;;
+        i)
+            SHOWIPADDRESS=1
             ;;
         *)
             print_help
@@ -133,13 +143,17 @@ rm -f $TMP_KEY_FILE
 
 
 ######################################################################
-#LOCALIPADDRESS=$($IP_CMD -o addr show scope global | awk '{gsub(/\/.*/,"",$4); print $4}')
-echo "Acquired key for user $USERNAME from $SERVICENAME,"
-echo "your friend is now able to login via ssh using:"
-echo "$LOCALIPADDRESS" | while read a; do echo "    ssh $USER@$a"; done
+if [[ SHOWIPADDRESS -eq 1 ]]; then
+    LOCALIPADDRESS=$(getIP)
+else
+    LOCALIPADDRESS="THIS_MACHINE_IP"
+fi
+
+echo "Acquired key for user $USERNAME from $SERVICENAME."
+echo "Your friend is now able to login via ssh using : "
+echo "ssh $USER@$LOCALIPADDRESS"
 echo ""
-echo "Login authorization will be ceased after this program"
-echo "terminates."
+echo "Login authorization will be ceased after this program terminates."
 echo "Press ^C to exit."
 
 ######################################################################
