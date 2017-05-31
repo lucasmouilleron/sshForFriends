@@ -1,0 +1,149 @@
+#!/bin/bash
+
+######################################################################
+# FUNCTIONS
+######################################################################
+print_help () {
+    echo ""
+    echo "Temporarily allow a ssh login using friends public key"
+    echo "fetched from online servers."
+    echo ""
+    echo "Usage:"
+    echo "    $0 [options] <friend_user_name>"
+    echo ""
+    echo "[options]"
+    echo "    -h : Print this help;"
+    echo "    -g : Select Github as public key server."
+    echo ""
+    echo "<friend_user_name>"
+    echo "    It is the username used to download keys from selected"
+    echo "    server."
+    echo ""
+    echo "Advanced example:"
+    echo ""
+    echo "    Allow user \`john-doe\` from Github to login as user \`myself\`:"
+    echo "    sudo -H -u myself $0 --github john-doe"
+    echo ""
+}
+
+######################################################################
+print_usage () {
+    echo "Usage example: $0 --github <user_name>"
+}
+
+######################################################################
+github_download_key () {
+    SERVICENAME='github'
+    USERKEY=`curl -s https://github.com/$USERNAME.keys`
+
+    if [[ -z $USERKEY ]]; then
+        echo "User $USERNAME has no keys in Github."
+        exit 5
+    fi
+
+    if [[ "$USERKEY" == "Not Found" ]]; then
+        echo "User $USERNAME not found in Github."
+        exit 5
+    fi
+}
+
+######################################################################
+setup () {
+    mkdir -p $HOME/.ssh/
+    echo "$USERKEY" >> $HOME/.ssh/authorized_keys
+}
+
+######################################################################
+teardown () {
+    if grep -v "$USERKEY" $HOME/.ssh/authorized_keys > $HOME/.ssh/tmp; then
+        cat $HOME/.ssh/tmp > $HOME/.ssh/authorized_keys && rm $HOME/.ssh/tmp;
+    else
+        rm $HOME/.ssh/authorized_keys && rm $HOME/.ssh/tmp;
+    fi
+}
+
+######################################################################
+# VARS
+######################################################################
+GITHUB=0
+USERNAME=""
+USERKEY=""
+SERVICENAME=""
+LOCALIPADDRESS=""
+
+######################################################################
+# TEST DEPS
+######################################################################
+curl --help > /dev/null
+if [[ $? -ne 0 ]]; then
+    echo "$0: \`curl --help\` failed in this environment."
+    exit 1
+fi
+
+SSH_KEYGEN_CMD=$(which ssh-keygen 2> /dev/null)
+if [[ $? -ne 0 ]]; then
+    echo "$0: ssh-keygen command not available."
+    exit 1
+fi
+
+######################################################################
+# MAIN
+######################################################################
+while getopts "hg:" o; do
+    case "${o}" in
+        h)
+            print_help
+            exit 0
+            ;;
+        g)
+            GITHUB=1
+            USERNAME=${OPTARG}
+            ;;
+        *)
+            print_help
+            exit 0
+            ;;
+    esac
+done
+
+if [ -z "$USERNAME" ]; then
+    echo "$0: Username was not provided"
+    print_usage
+    exit 4
+fi
+
+
+if [[ $GITHUB -eq 1 ]]; then
+    github_download_key
+else
+    echo "$0: No service selected."
+    print_usage
+    exit 5
+fi
+
+######################################################################
+TMP_KEY_FILE=/tmp/.ssh-allow-friend.$USERNAME-$USER-$SERVICENAME.keys
+echo $USERKEY > $TMP_KEY_FILE
+ssh-keygen -l -f $TMP_KEY_FILE > /dev/null
+if [[ $? -ne 0 ]]; then
+    echo "$0: Downloaded key is invalid."
+    exit 6
+fi
+rm -f $TMP_KEY_FILE
+
+
+######################################################################
+#LOCALIPADDRESS=$($IP_CMD -o addr show scope global | awk '{gsub(/\/.*/,"",$4); print $4}')
+echo "Acquired key for user $USERNAME from $SERVICENAME,"
+echo "your friend is now able to login via ssh using:"
+echo "$LOCALIPADDRESS" | while read a; do echo "    ssh $USER@$a"; done
+echo ""
+echo "Login authorization will be ceased after this program"
+echo "terminates."
+echo "Press ^C to exit."
+
+######################################################################
+trap "teardown; exit 0" SIGHUP SIGINT SIGTERM
+setup
+sleep infinity &
+wait
