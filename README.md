@@ -11,6 +11,6 @@ Identify providers
 Examples
 --------
 - Help : `sshForFriends -h`
-- Give access from a machine to `lucasmouilleron` in one line : `curl -L https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g lucasmouilleron -i`
+- Give access from a machine to `lucasmouilleron` in one line : `curl -L https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g -i lucasmouilleron`
 
-curl -L https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends?ck=2 -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g lucasmouilleron -i
+curl -L https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends?ck=2 -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g lucasmouilleron
