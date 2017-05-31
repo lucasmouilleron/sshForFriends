@@ -158,14 +158,17 @@ rm -f $TMP_KEY_FILE
 if [[ XSSH_ENABLED -eq 1 ]]; then
     LOCAL_IP_ADDRESS=$XSSH_REMOTE_HOST
     LOCAL_SSH_PORT=$XSSH_REMOTE_PORT
+    echo "Opening SSH tunnel to $XSSH_REMOTE_USER@$XSSH_REMOTE_HOST:$XSSH_REMOTE_PORT"
     ssh -fN -R $XSSH_REMOTE_PORT:localhost:$XSSH_LOCAL_PORT $XSSH_REMOTE_USER@$XSSH_REMOTE_HOST
+    if [[ $? -ne 0 ]]; then
+        echo "Error: Can't open SSH tunnel"
+        exit 7
+    fi
 else
     if [[ SHOW_IP_ADDRESS -eq 1 ]]; then
       LOCAL_IP_ADDRESS=$(getIP)
     fi    
 fi
-
-echo "ok"
 
 ######################################################################
 echo "Acquired key for user ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} from ${TEXT_BOLD}$IDENTITY_SERVICE_NAME${TEXT_NORMAL}."

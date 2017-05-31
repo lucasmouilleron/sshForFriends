@@ -15,4 +15,4 @@ Examples
 
 
 
-curl -L https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends?ck=6 -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g -x lucasmouilleron.com -l sshtunnel -m 10022 lucasmouilleron
+curl -L https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends?ck=8 -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g -x lucasmouilleron.com -l sshtunnel -m 10022 lucasmouilleron
