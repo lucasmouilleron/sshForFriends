@@ -60,6 +60,12 @@ USER_NAME=""
 USER_KEY=""
 SHOW_IP_ADDRESS=0
 LOCAL_IP_ADDRESS="THIS_MACHINE_IP"
+LOCAL_SSH_PORT=22
+XSSH_ENABLED=0
+XSSH_LOCAL_PORT=22
+XSSH_REMOTE_PORT=10022
+XSSH_REMOTE_USER="root"
+XSSH_REMOTE_HOST=""
 TEXT_BOLD=$(tput bold)
 TEXT_NORMAL=$(tput sgr0)
 
@@ -93,6 +99,21 @@ while getopts "hgi" o; do
         i)
             SHOW_IP_ADDRESS=1
             ;;
+        x)
+            XSSH_ENABLED=1
+            ;;
+        k)
+            XSSH_REMOTE_HOST=$OPTARG
+            ;;
+        l)
+            XSSH_REMOTE_USER=$OPTARG
+            ;;
+        m)
+            XSSH_REMOTE_PORT=$OPTARG
+            ;;
+        n)
+            XSSH_LOCAL_PORT=$OPTARG
+            ;;
         *)
             printHelp
             exit 0
@@ -110,7 +131,6 @@ if [ -z "$USER_NAME" ]; then
     printHelp
     exit 4
 fi
-
 
 if [[ $IDENTITY_GITHUB -eq 1 ]]; then
     IDENTITY_SERVICE_NAME="github"
@@ -133,13 +153,19 @@ rm -f $TMP_KEY_FILE
 
 
 ######################################################################
-if [[ SHOW_IP_ADDRESS -eq 1 ]]; then
-    LOCAL_IP_ADDRESS=$(getIP)
+if [[ XSSH_ENABLED -eq 1 ]]; then
+    LOCAL_IP_ADDRESS=$XSSH_REMOTE_HOST
+    LOCAL_SSH_PORT=$XSSH_REMOTE_PORT
+    ssh -fN -R $XSSH_REMOTE_PORT:localhost:$XSSH_LOCAL_PORT $XSSH_REMOTE_USER@$XSSH_REMOTE_HOST
+else
+    if [[ SHOW_IP_ADDRESS -eq 1 ]]; then
+      LOCAL_IP_ADDRESS=$(getIP)
+    fi    
 fi
 
 ######################################################################
 echo "Acquired key for user ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} from ${TEXT_BOLD}$IDENTITY_SERVICE_NAME${TEXT_NORMAL}."
-echo "Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login via ssh using : ${TEXT_BOLD}ssh $USER@$LOCAL_IP_ADDRESS${TEXT_NORMAL}"
+echo "Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login via ssh using : ${TEXT_BOLD}ssh $USER@$LOCAL_IP_ADDRESS${TEXT_NORMAL} -p $LOCAL_SSH_PORT"
 echo ""
 echo "Login authorization will stop after this program terminates."
 echo "Press ^C to exit."
