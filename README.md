@@ -28,6 +28,7 @@ Behind a firewall
 -----------------
 - If the computer being accessed is behind a firewall, `sshForFriends` can use a public server for ssh forwading.
 - See params `-x`, `-l`, `-m` and `-n`
+- On the public server, make sure `GatewayPorts yes` is set in the `/etc/ssh/sshd_config` file
 - See examples below
 
 Examples
