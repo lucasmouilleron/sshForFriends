@@ -18,6 +18,7 @@ XSSH_REMOTE_HOST=""
 XSSH_OPEN_FOR=10
 TEXT_BOLD=$(tput bold)
 TEXT_NORMAL=$(tput sgr0)
+PRINT_SSH_COMMAND_OPTIONS=""
 
 ######################################################################
 # FUNCTIONS
@@ -196,6 +197,7 @@ if [[ XSSH_ENABLED -eq 1 ]]; then
     LOCAL_SSH_PORT=$XSSH_REMOTE_PORT
     echo "Opening SSH tunnel to $XSSH_REMOTE_USER@$XSSH_REMOTE_HOST:$XSSH_REMOTE_PORT"
     ssh -fN -R $XSSH_REMOTE_PORT:localhost:$XSSH_LOCAL_PORT $XSSH_REMOTE_USER@$XSSH_REMOTE_HOST
+    PRINT_SSH_COMMAND_OPTIONS=" -o BatchMode=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
     if [[ $? -ne 0 ]]; then
         echo "Error: Can't open SSH tunnel"
         exit 7
@@ -210,7 +212,7 @@ fi
 # PRINT
 ######################################################################
 echo ""
-echo "==> Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login with : ${TEXT_BOLD}ssh -o BatchMode=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $USER@$LOCAL_IP_ADDRESS -p $LOCAL_SSH_PORT${TEXT_NORMAL}"
+echo "==> Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login with : ${TEXT_BOLD}ssh${PRINT_SSH_COMMAND_OPTIONS} $USER@$LOCAL_IP_ADDRESS -p $LOCAL_SSH_PORT${TEXT_NORMAL}"
 echo ""
 echo "Login authorization will be revoked after this program terminated (press ^C to exit)"
 
