@@ -19,7 +19,7 @@ Usage
 - `friendUsername` is the friend username which will be granted access (identity provider username)
 - `sshForFriends -h` for more usage help
 
-Identify providers
+Identity providers
 ------------------
 - Github : keys from `https://github.com/$USER_NAME.keys` (`-g`, `-i github`)
 - Keybase : keys from `https://$USER_NAME.keybase.pub/id_rsa.pub` (`-k`, `-i keybase`)
@@ -30,6 +30,11 @@ Behind a firewall
 - See params `-x`, `-l`, `-m` and `-n`
 - On the public server, make sure `GatewayPorts yes` is set in the `/etc/ssh/sshd_config` file
 - See examples below
+
+Miscs
+-----
+- macOS, enable ssh server : `sudo systemsetup -setremotelogin on`
+- 
 
 Examples
 --------
