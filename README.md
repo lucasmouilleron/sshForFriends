@@ -7,6 +7,8 @@ Temporally grant ssh access to friends.
 When `sshForFriends` has finished running, public keys are cleaned and friends can't access the computer anymore.
 Public keys are fetched from known identity providers.
 
+Tested on macOS and Ubuntu.
+
 No password, no hastle, 100% SSH.
 
 ![Screenshot](http://grabs.lucasmouilleron.com/Screen%20Shot%202017-05-31%20at%2015.31.02.png)
