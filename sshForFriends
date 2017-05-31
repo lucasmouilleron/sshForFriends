@@ -3,60 +3,43 @@
 ######################################################################
 # FUNCTIONS
 ######################################################################
-print_help () {
+printHelp () {
     echo ""
-    echo "Temporarily allow a ssh login using friends public key"
-    echo "fetched from online servers."
+    echo "Temporarily grant ssh access to friends."
     echo ""
     echo "Usage:"
-    echo "    $0 [options] <friend_user_name>"
+    echo "    $0 [options] <friendUSER_NAME>"
     echo ""
     echo "[options]"
-    echo "    -h : Print this help;"
-    echo "    -g : Select Github as public key server"
+    echo "    -h : Print this help"
+    echo "    -g : Github identity provider"
     echo "    -i : Show IP address"
     echo ""
-    echo "<friend_user_name>"
-    echo "    It is the username used to download keys from selected"
-    echo "    server."
-    echo ""
-    echo "Advanced example:"
-    echo ""
-    echo "    Allow user \`john-doe\` from Github to login as user \`myself\`:"
-    echo "    sudo -H -u myself $0 --github john-doe"
+    echo "<friendUSER_NAME>"
+    echo "    The friend USER_NAME which will be granted access"
     echo ""
 }
 
 ######################################################################
-print_usage () {
-    echo "Usage example: $0 --github <user_name>"
-}
+identityDownloadKeyGithub () {
 
-######################################################################
-github_download_key () {
-    SERVICENAME='github'
-    USERKEY=`curl -s https://github.com/$USERNAME.keys`
+    USER_KEY=`curl -s https://github.com/$USER_NAME.keys`
 
-    if [[ -z $USERKEY ]]; then
-        echo "User $USERNAME has no keys in Github."
+    if [[ -z $USER_KEY ]]; then
+        echo "User $USER_NAME has no keys on Github."
         exit 5
     fi
 
-    if [[ "$USERKEY" == "Not Found" ]]; then
-        echo "User $USERNAME not found in Github."
+    if [[ "$USER_KEY" == "Not Found" ]]; then
+        echo "User $USER_NAME not found on Github."
         exit 5
     fi
+    echo $USER_KEY
 }
 
 ######################################################################
-setup () {
-    mkdir -p $HOME/.ssh/
-    echo "$USERKEY" >> $HOME/.ssh/authorized_keys
-}
-
-######################################################################
-teardown () {
-    if grep -v "$USERKEY" $HOME/.ssh/authorized_keys > $HOME/.ssh/tmp; then
+stopCallback () {
+    if grep -v "$USER_KEY" $HOME/.ssh/authorized_keys > $HOME/.ssh/tmp; then
         cat $HOME/.ssh/tmp > $HOME/.ssh/authorized_keys && rm $HOME/.ssh/tmp;
     else
         rm $HOME/.ssh/authorized_keys && rm $HOME/.ssh/tmp;
@@ -71,12 +54,14 @@ getIP() {
 ######################################################################
 # VARS
 ######################################################################
-GITHUB=0
-USERNAME=""
-USERKEY=""
-SERVICENAME=""
-SHOWIPADDRESS=0
-LOCALIPADDRESS=""
+IDENTITY_GITHUB=0
+IDENTITY_SERVICE_NAME=""
+USER_NAME=""
+USER_KEY=""
+SHOW_IP_ADDRESS=0
+LOCAL_IP_ADDRESS="THIS_MACHINE_IP"
+TEXT_BOLD=$(tput bold)
+TEXT_NORMAL=$(tput sgr0)
 
 ######################################################################
 # TEST DEPS
@@ -94,70 +79,75 @@ if [[ $? -ne 0 ]]; then
 fi
 
 ######################################################################
-# MAIN
+# PARSE ARGUMENTS
 ######################################################################
-while getopts "hg:i" o; do
+while getopts "hgi" o; do
     case "${o}" in
         h)
-            print_help
+            printHelp
             exit 0
             ;;
         g)
-            GITHUB=1
-            USERNAME=${OPTARG}
+            IDENTITY_GITHUB=1
+            shift
             ;;
         i)
-            SHOWIPADDRESS=1
+            SHOW_IP_ADDRESS=1
+            shift
             ;;
         *)
-            print_help
+            printHelp
             exit 0
             ;;
     esac
 done
+USER_NAME=$1
 
-if [ -z "$USERNAME" ]; then
-    echo "$0: Username was not provided"
-    print_usage
+######################################################################
+# TEST ARGUMENTS
+######################################################################
+if [ -z "$USER_NAME" ]; then
+    echo "$0: No friend USER_NAME provided"
+    printHelp
     exit 4
 fi
 
 
-if [[ $GITHUB -eq 1 ]]; then
-    github_download_key
+if [[ $IDENTITY_GITHUB -eq 1 ]]; then
+    IDENTITY_SERVICE_NAME="github"
+    USER_KEY=$(identityDownloadKeyGithub)
 else
-    echo "$0: No service selected."
-    print_usage
+    echo "$0: No identity provider provided"
+    printHelp
     exit 5
 fi
 
 ######################################################################
-TMP_KEY_FILE=/tmp/.ssh-allow-friend.$USERNAME-$USER-$SERVICENAME.keys
-echo $USERKEY > $TMP_KEY_FILE
-ssh-keygen -l -f $TMP_KEY_FILE > /dev/null
+TMP_KEY_FILE=/tmp/.sshForFriends.$USER_NAME-$USER-$IDENTITY_SERVICE_NAME.keys
+echo $USER_KEY > $TMP_KEY_FILE
+eval "$SSH_KEYGEN_CMD -l -f $TMP_KEY_FILE > /dev/null"
 if [[ $? -ne 0 ]]; then
-    echo "$0: Downloaded key is invalid."
+    echo "$0: Downloaded key is invalid"
     exit 6
 fi
 rm -f $TMP_KEY_FILE
 
 
 ######################################################################
-if [[ SHOWIPADDRESS -eq 1 ]]; then
-    LOCALIPADDRESS=$(getIP)
-else
-    LOCALIPADDRESS="THIS_MACHINE_IP"
+if [[ SHOW_IP_ADDRESS -eq 1 ]]; then
+    LOCAL_IP_ADDRESS=$(getIP)
 fi
 
-echo "Acquired key for user $USERNAME from $SERVICENAME."
-echo "Your friend is now able to login via ssh using : "
-echo "ssh $USER@$LOCALIPADDRESS"
+######################################################################
+echo "Acquired key for user ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} from ${TEXT_BOLD}$IDENTITY_SERVICE_NAME${TEXT_NORMAL}."
+echo "Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login via ssh using : ${TEXT_BOLD}ssh $USER@$LOCAL_IP_ADDRESS${TEXT_NORMAL}"
 echo ""
-echo "Login authorization will be ceased after this program terminates."
+echo "Login authorization will stop after this program terminates."
 echo "Press ^C to exit."
 
 ######################################################################
-trap "teardown; exit 0" SIGHUP SIGINT SIGTERM
-setup
+trap "stopCallback; exit 0" SIGHUP SIGINT SIGTERM
+mkdir -p $HOME/.ssh/
+echo "$USER_KEY" >> $HOME/.ssh/authorized_keys
 sleep infinity &
 wait
