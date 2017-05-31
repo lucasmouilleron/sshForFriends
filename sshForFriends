@@ -39,7 +39,7 @@ printHelp () {
     echo "    -n : SSH forward local port ($XSSH_LOCAL_PORT)"
     echo ""
     echo "<friendUsername>"
-    echo "    The friend username which will be granted access"
+    echo "    The friend username which will be granted access (identity provider username)"
     echo ""
 }
 
@@ -148,7 +148,7 @@ fi
 # ACQUIRE USER KEY
 ######################################################################
 echo "Fetching $USER_NAME key from service $IDENTITY_SERVICE"
-if [[ $IDENTITY_SERVICE -eq "github" ]]; then
+if [ "$IDENTITY_SERVICE" == "github" ]; then
     USER_KEY=$(identityDownloadKeyGithub)
 else
     echo "Error: Identity provider given is not supported"

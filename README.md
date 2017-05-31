@@ -3,10 +3,18 @@ sshForFriends
 
 Temporally grant ssh access to friends.
 
+Friends public keys are fetched from identity providers.
+
+Usage
+-----
+- `sshForFriends [OPTIONS] friendUsername`
+- `friendUsername` is the friend username which will be granted access (identity provider username)
+- `sshForFriends -h` for more usage help
+
 Identify providers
 ------------------
-- Github : the github username
-- Keybase : todo
+- Github : `-g`, `-i github`
+- Keybase : `-k`, `-i keybase`
 
 Behind a firewall
 -----------------
