@@ -76,8 +76,8 @@ identityDownloadKeyKeybase () {
 stopCallback () {
     if grep -v "$USER_KEY" $HOME/.ssh/authorized_keys > $HOME/.ssh/tmp; then
         cat $HOME/.ssh/tmp > $HOME/.ssh/authorized_keys && rm $HOME/.ssh/tmp;
-    else
-        rm $HOME/.ssh/authorized_keys && rm $HOME/.ssh/tmp;
+    # else
+        # rm $HOME/.ssh/authorized_keys && rm $HOME/.ssh/tmp;
     fi
     if [[ XSSH_ENABLED -eq 1 ]]; then
         pkill -f "ssh -fN -R $XSSH_REMOTE_PORT:localhost:$XSSH_LOCAL_PORT $XSSH_REMOTE_USER@$XSSH_REMOTE_HOST" 2> /dev/null
@@ -210,7 +210,7 @@ fi
 # PRINT
 ######################################################################
 echo ""
-echo "==> Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login with : ${TEXT_BOLD}ssh $USER@$LOCAL_IP_ADDRESS${TEXT_NORMAL} -p $LOCAL_SSH_PORT"
+echo "==> Your friend ${TEXT_BOLD}$USER_NAME${TEXT_NORMAL} is now able to login with : ${TEXT_BOLD}ssh -o BatchMode=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $USER@$LOCAL_IP_ADDRESS${TEXT_NORMAL} -p $LOCAL_SSH_PORT"
 echo ""
 echo "Login authorization will be revoked after this program terminated (press ^C to exit)"
 
