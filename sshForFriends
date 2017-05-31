@@ -87,7 +87,7 @@ fi
 ######################################################################
 # PARSE ARGUMENTS
 ######################################################################
-while getopts "hgixk:l:m:n:" o; do
+while getopts "hgix:l:m:n:" o; do
     case "${o}" in
         h)
             printHelp
@@ -101,8 +101,6 @@ while getopts "hgixk:l:m:n:" o; do
             ;;
         x)
             XSSH_ENABLED=1
-            ;;
-        k)
             XSSH_REMOTE_HOST=$OPTARG
             ;;
         l)
