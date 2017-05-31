@@ -23,7 +23,7 @@ printHelp () {
 ######################################################################
 identityDownloadKeyGithub () {
 
-    USER_KEY=`curl -s https://github.com/$USER_NAME.keys`
+    USER_KEY=$($CURL_CMD -s https://github.com/$USER_NAME.keys)
 
     if [[ -z $USER_KEY ]]; then
         echo "User $USER_NAME has no keys on Github."
@@ -48,7 +48,7 @@ stopCallback () {
 
 ######################################################################
 getIP() {
-    echo $(curl -s checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//')
+    echo $($CURL_CMD -s checkip.dyndns.org | sed -e 's/.*Current IP Address: //' -e 's/<.*$//')
 }
 
 ######################################################################
@@ -66,15 +66,15 @@ TEXT_NORMAL=$(tput sgr0)
 ######################################################################
 # TEST DEPS
 ######################################################################
-curl --help > /dev/null
+CURL_CMD=$(which curl 2> /dev/null)
 if [[ $? -ne 0 ]]; then
-    echo "$0: \`curl --help\` failed in this environment."
+    echo "Command curl not available"
     exit 1
 fi
 
 SSH_KEYGEN_CMD=$(which ssh-keygen 2> /dev/null)
 if [[ $? -ne 0 ]]; then
-    echo "$0: ssh-keygen command not available."
+    echo "Command ssh-keygen not available"
     exit 1
 fi
 
@@ -89,11 +89,9 @@ while getopts "hgi" o; do
             ;;
         g)
             IDENTITY_GITHUB=1
-            shift
             ;;
         i)
             SHOW_IP_ADDRESS=1
-            shift
             ;;
         *)
             printHelp
@@ -101,13 +99,14 @@ while getopts "hgi" o; do
             ;;
     esac
 done
+shift $((OPTIND-1))
 USER_NAME=$1
 
 ######################################################################
 # TEST ARGUMENTS
 ######################################################################
 if [ -z "$USER_NAME" ]; then
-    echo "$0: No friend USER_NAME provided"
+    echo "No friend USER_NAME provided"
     printHelp
     exit 4
 fi
@@ -117,16 +116,15 @@ if [[ $IDENTITY_GITHUB -eq 1 ]]; then
     IDENTITY_SERVICE_NAME="github"
     USER_KEY=$(identityDownloadKeyGithub)
 else
-    echo "$0: No identity provider provided"
+    echo "No identity provider provided"
     printHelp
     exit 5
 fi
 
 ######################################################################
 TMP_KEY_FILE=/tmp/.sshForFriends.$USER_NAME-$USER-$IDENTITY_SERVICE_NAME.keys
-echo $TMP_KEY_FILE
 echo $USER_KEY > $TMP_KEY_FILE
-ssh-keygen -l -f $TMP_KEY_FILE > /dev/null
+eval "$SSH_KEYGEN_CMD -l -f $TMP_KEY_FILE > /dev/null"
 if [[ $? -ne 0 ]]; then
     echo "$0: Downloaded key is invalid"
     exit 6
