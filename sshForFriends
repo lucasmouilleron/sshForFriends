@@ -33,7 +33,7 @@ printHelp () {
     echo "[options]"
     echo "    -h : Print this help"
     echo "    -i : Identity provider (github*, keybase, id_rsa)"
-    echo "    -r : Github identity provider (equivalent to -i id_rsa)"
+    echo "    -r \"RSA_PUB_KEY\": id_rsa identity provider (equivalent to -i id_rsa)"
     echo "    -g : Github identity provider (equivalent to -i github)"
     echo "    -k : Keybase identity provider (equivalent to -i keybase)"
     echo "    -x : SSH forward host"
