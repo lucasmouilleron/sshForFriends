@@ -35,7 +35,6 @@ Behind a firewall
 Miscs
 -----
 - macOS, enable ssh server : `sudo systemsetup -setremotelogin on`
-- 
 
 Examples
 --------
