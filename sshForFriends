@@ -32,7 +32,8 @@ printHelp () {
     echo ""
     echo "[options]"
     echo "    -h : Print this help"
-    echo "    -i : Identity provider (github*, keybase)"
+    echo "    -i : Identity provider (github*, keybase, id_rsa)"
+    echo "    -r : Github identity provider (equivalent to -i id_rsa)"
     echo "    -g : Github identity provider (equivalent to -i github)"
     echo "    -k : Keybase identity provider (equivalent to -i keybase)"
     echo "    -x : SSH forward host"
@@ -113,11 +114,15 @@ fi
 ######################################################################
 # PARSE ARGUMENTS
 ######################################################################
-while getopts "hgki:x:l:m:n:" o; do
+while getopts "hgki:x:l:m:n:r:" o; do
     case "${o}" in
         h)
             printHelp
             exit 0
+            ;;
+        r)
+            IDENTITY_SERVICE="id_rsa"
+            RSA_KEY=$OPTARG
             ;;
         g)
             IDENTITY_SERVICE="github"
@@ -169,10 +174,13 @@ fi
 # ACQUIRE USER KEY
 ######################################################################
 echo "Fetching $USER_NAME key from service $IDENTITY_SERVICE"
+
 if [ "$IDENTITY_SERVICE" == "github" ]; then
     USER_KEY=$(identityDownloadKeyGithub)
 elif [ "$IDENTITY_SERVICE" == "keybase" ]; then
     USER_KEY=$(identityDownloadKeyKeybase)
+elif [ "$IDENTITY_SERVICE" == "id_rsa" ]; then
+    USER_KEY=$RSA_KEY
 else
     echo "Error: Identity provider given is not supported"
     printHelp
