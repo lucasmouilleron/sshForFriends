@@ -38,7 +38,8 @@ Miscs
 
 Examples
 --------
-- Give access from a machine to `lucasmouilleron` in one line : `curl -sL https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g -x lucasmouilleron.com`
+- Give access from a machine to `lucasmouilleron` in one line : `curl -sL https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g lucasmouilleron`
+- Give access from a machine to `lucasmouilleron` in one line : `curl -sL https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -k lucasmouilleron`
 - Give access from a machine behind a firewall to `lucasmouilleron` in one line : `curl -sL https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -g -x lucasmouilleron.com -l sshtunnel -m 10022 lucasmouilleron`
 - Give access from a machine behind a firewall to a friend with pub key in one line : `curl -sL https://raw.githubusercontent.com/lucasmouilleron/sshForFriends/master/sshForFriends -o $HOME/sshForFriends ; chmod a+x $HOME/sshForFriends ; $HOME/sshForFriends -r "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDqN4/IlNfY8I5AUYYnj9mieJ9Uyx4rMbZjxyukmwM1nqSpTmFBs5xdqtE1Qi1DDb6V0Nphua80GUxXfIiKmbJVuOnrBjX2qInwMPtFxJ0gr8adXYIamcCVylcCPm2qO418KQpuHNM1es5s0a2hzuuRCtw6trysq/SCSIp6o05OEdHP8CbfCdFA+P7sy99XHG3yGzqHdU0D04ScDePzm1buSOXqQRCrSkuLmRMBhtRQSj7UAI3IlRcF3tEFPqAywjwnZVIvv6fUoXnpJuoCzBPuJv5D5lo06xixwIvHc39t1r4Tv/OrD+EyWfPsmCpLGfEkMRBqmj/ds5c4y6NjO9cl" -x lucasmouilleron.com -l sshtunnel -m 10022 yourfriendname`
 
