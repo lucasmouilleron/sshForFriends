@@ -1,6 +1,8 @@
 sshForFriends
 =============
 
+![Screenshot](http://grabs.lucasmouilleron.com/grab%202021-03-13%20at%2009.37.22.png)
+
 Temporally give ssh access to your friends.
 
 `sshForFriends` uses friends public keys to give them access to the computer.
@@ -11,7 +13,7 @@ Tested on macOS and Ubuntu.
 
 No password, no hastle, 100% SSH.
 
-![Screenshot](http://grabs.lucasmouilleron.com/Screen%20Shot%202017-05-31%20at%2015.31.02.png)
+
 
 Usage
 -----
